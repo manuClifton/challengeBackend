@@ -6,8 +6,8 @@ const { validationResult } = require('express-validator');
 exports.obtenerPosts = async (req, res) =>{
 
     try {
-        //const posteos = await Post.find().sort({fecha: -1});
-        const posts = Post.findAll();
+        const posteos = await Post.find().sort({fecha: -1});
+        //const posts = Post.findAll();
        // res.status(200).json({posteos});
         res.send('entra correctamente. FUNCIONA');
     } catch (error) {
