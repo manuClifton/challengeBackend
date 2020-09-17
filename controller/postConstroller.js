@@ -6,21 +6,23 @@ const { validationResult } = require('express-validator');
 exports.obtenerPosts = async (req, res) =>{
 
     try {
-        const posteos = await Post.find().sort({fecha: -1});
-        //const posts = Post.findAll();
-       // res.status(200).json({posteos});
-        res.send('entra correctamente. FUNCIONA');
+        const posts = Post.findAll();
+        res.send('FUNCIONA');
+
+        res.status(200).json({posts});
     } catch (error) {
         console.log(error);
         res.status(400).send('Hubo un error en el get');
         res.send(' NO FUNCIONA');
     }
 }
-/*
+
 //Crear posteo nuevo
 exports.crearPost = async (req, res) => {
     //revisar si hay errores
     const errors = validationResult(req);
+    console.log(req.body);
+    console.log(req.query);
 
     if(!errors.isEmpty()){ // si hay errores los muestro
         console.log('Hay un error en el postman')
@@ -29,19 +31,28 @@ exports.crearPost = async (req, res) => {
     
     try {
           //crea el posteo
-        
-        //guarda el posteo
-    
+          let posteo = await Post.create(req.body);
+
         //Mensaje
+        res.send(`POST FUNCIONA \n${req.body}`);
         res.status(200).send('Posteo creado');
+        res.status(201).json(req.body);
+        
     } catch (error) {
         console.log(error);
         res.status(400).send('Hubo un error');
+        //res.status(400).json({ error: 'Bad Request, invalid or missing input' });
     }
 }
-
+/*
 //Actualizar un post
 exports.actualizarPost = async (req, res) =>{
+
+      //const resultado = await db.posts.findOne({
+        //where: {
+       // id: id
+       // }
+       // })
 
     const { titulo, contenido } = req.body;
 

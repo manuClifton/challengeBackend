@@ -11,31 +11,34 @@ router.get('/',
 
 //Crea un post
 router.post('/', 
-    /*[
-        check('titulo', 'El titulo del post es obligatorio').not().isEmpty(),
-        check('contenido', 'El contenido del post es obligatorio').not().isEmpty()
-    ],
-    postController.crearPost*/
-);
-
-//Actualizar post via ID
-router.put('/:id',
    /* [
         check('titulo', 'El titulo del post es obligatorio').not().isEmpty(),
         check('contenido', 'El contenido del post es obligatorio').not().isEmpty()
-    ],
-    postController.actualizarPost*/
+    ],*/
+    postController.crearPost
 );
 
+/*
+//Actualizar post via ID
+router.put('/:id',
+    [
+        check('titulo', 'El titulo del post es obligatorio').not().isEmpty(),
+        check('contenido', 'El contenido del post es obligatorio').not().isEmpty()
+    ],
+    postController.actualizarPost
+);*/
+
+/*
 //Eliminar un proyecto
 router.delete('/:id',
-   /* postController.eliminarPost*/
-); 
+    postController.eliminarPost
+); */
 
+/*
 //Eliminar todos los proyectos
 router.delete('/',
-  /*  postController.eliminarPosteos*/
-);
+    postController.eliminarPosteos
+);*/
 
 
 module.exports = router;
