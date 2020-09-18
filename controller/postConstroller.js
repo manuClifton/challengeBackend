@@ -6,8 +6,12 @@ const { validationResult } = require('express-validator');
 exports.obtenerPosts = async (req, res) =>{
 
     try {
-        const posts = Post.findAll();
-        res.send('FUNCIONA');
+        const posts = await Post.findAll({
+            attributes: ['titulo', 'contenido', 'imagen', 'categoria', 'fecha']
+        },{
+           oder: ['fecha', 'DESC']
+        })
+        res.status(200).json({posts});
 
         res.status(200).json({posts});
     } catch (error) {
@@ -21,8 +25,8 @@ exports.obtenerPosts = async (req, res) =>{
 exports.crearPost = async (req, res) => {
     //revisar si hay errores
     const errors = validationResult(req);
-    console.log(req.body);
-    console.log(req.query);
+    //console.log(req.body);
+    //console.log(req.query);
 
     if(!errors.isEmpty()){ // si hay errores los muestro
         console.log('Hay un error en el postman')
@@ -32,8 +36,9 @@ exports.crearPost = async (req, res) => {
     try {
           //crea el posteo
           let posteo = await Post.create(req.body);
-
+        const {id, titulo, contenido, imagen, categoria} = posteo;
         //Mensaje
+        res.json({id, titulo, contenido, imagen, categoria});
         res.send(`POST FUNCIONA \n${req.body}`);
         res.status(200).send('Posteo creado');
         res.status(201).json(req.body);
@@ -44,38 +49,43 @@ exports.crearPost = async (req, res) => {
         //res.status(400).json({ error: 'Bad Request, invalid or missing input' });
     }
 }
-/*
+
+
+//Obtiene por ID
+exports.obtenerPorId = async (req, res) =>{
+
+    Post.findByPk(req.params.id).then(post =>{
+        res.json(post);
+    })
+    /* try {
+        
+        const post = Post.findByPk(req.params.id);
+        console.log(post);
+        res.status(200).json({post});
+
+        res.status(200).json({post});
+    } catch (error) {
+        console.log(error);
+        res.status(400).send('Hubo un error en el get por ID');
+        res.send(' NO FUNCIONA');
+    } */
+}
+
 //Actualizar un post
 exports.actualizarPost = async (req, res) =>{
-
-      //const resultado = await db.posts.findOne({
-        //where: {
-       // id: id
-       // }
-       // })
-
-    const { titulo, contenido } = req.body;
-
-    const nuevoPost = {};
-
-    if(titulo){
-        nuevoPost.titulo = titulo;
-    }
-    if(contenido){
-        nuevoPost.contenido = contenido;
-    }
+    const { titulo, contenido, imagen, categoria } = req.body;
 
     try {
-        //revisar id
-        console.log(req.params.id);
-        let posteo = await Post.findById(req.params.id);
-        //verificar si existe
-        if(!posteo){
-            return res.status(404).json({ msg: 'No se econtro el Post'})
-        }
-        //actualizar
-        posteo = await Post.findByIdAndUpdate( {_id: req.params.id}, {$set: nuevoPost}, {new: true} );
-        res.status(200).json({posteo});
+            let posteo = await Post.update(req.body, {
+                where: { id: req.params.id}
+            });
+            res.json({posteo});
+            if(posteo){
+                return res.status(404).json({ msg: 'No se econtro el Post'})
+            }
+    
+            res.status(200).json({ msg: 'Se actualizo correctamente'});
+        
     } catch (error) {
         console.log(error);
         res.status(400).send('Hubo un error PUT en el servidor')
@@ -85,8 +95,16 @@ exports.actualizarPost = async (req, res) =>{
 //Elimina un posteo por su ID
 exports.eliminarPost = async (req,res) =>{
 
-    //Obtener el proyecto
-    
+    try {
+       await Post.destroy({
+            where: { id: req.params.id}
+        })
+        res.status(200).json({ msg: 'Se elimino el posteo'});
+    } catch (error) {
+        res.status(400).send('Hubo un error de DELETE en el servidor')
+    }
+
+    /* //Obtener el proyecto
     try {
         //Revisar el ID
         let posteo = await Post.findById(req.params.id);
@@ -103,9 +121,9 @@ exports.eliminarPost = async (req,res) =>{
     } catch (error) {
         console.log(error);
         res.status(400).send('Hubo un error de DELETE en el servidor')
-    }
+    } */
 }
-
+/*
 //elimimar todos los posteos
 exports.eliminarPosteos = async (req,res) =>{
 

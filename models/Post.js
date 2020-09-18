@@ -11,14 +11,24 @@ Post.init({
     titulo: {
         type: DataTypes.STRING,
         require: true,
-        trim: true
+        trim: true,
+        validate:{
+            len:[2,15]
+        }
     },
     contenido: {
         type: DataTypes.STRING,
         require: true,
+        validate:{
+            len:[1,100]
+        }
     },
     imagen:{
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        require: true,
+        validate:{
+            isUrl: true
+        }
     },
     categoria:{
         type: DataTypes.STRING,

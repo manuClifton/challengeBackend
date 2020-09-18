@@ -5,6 +5,7 @@ const apiRouter = require('./routes/posts');
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 //puerto de la APP
 const port = process.env.PORT || 4000;
 
