@@ -30,19 +30,20 @@ Post.init({
             isUrl: true
         }
     },
-    categoria:{
-        type: DataTypes.STRING,
-        require: true,
-        trim: true
+    id_categoria:{
+        type: DataTypes.INTEGER,
+        notNull: true
     },
     fecha: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW 
+        defaultValue: DataTypes.NOW
     }
 },
 {
     sequelize,
-    modelName: "Post"
+    freezeTableName: true,
+    timestamps: false,
+    underscored: true  
 });
 
 module.exports = Post;

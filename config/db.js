@@ -7,8 +7,6 @@ const sequelize = new Sequelize('yIqnDOgEHZ', 'yIqnDOgEHZ', 'ZYdogI8vaX', {
 });
 
 //Conectarse a la base de datos
-
-
 const conectarDB = async () =>{
     try {
        await sequelize.sync({ force:false })

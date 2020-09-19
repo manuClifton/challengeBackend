@@ -11,10 +11,12 @@ router.get('/',
 
 //Crea un post
 router.post('/', 
-   /* [
+    [
         check('titulo', 'El titulo del post es obligatorio').not().isEmpty(),
-        check('contenido', 'El contenido del post es obligatorio').not().isEmpty()
-    ],*/
+        check('contenido', 'El contenido del post es obligatorio').not().isNumeric(),
+        check('imagen', "Imagen obligatoria").not().isEmpty(),
+        check('id_categoria', "categoria obligatoria").not().isEmpty()
+    ],
     postController.crearPost
 );
 //Obtener por ID
@@ -25,10 +27,6 @@ router.get('/:id',
 
 //Actualizar post via ID
 router.put('/:id',
-/*    [
-        check('titulo', 'El titulo del post es obligatorio').not().isEmpty(),
-        check('contenido', 'El contenido del post es obligatorio').not().isEmpty()
-    ],*/
     postController.actualizarPost
 );
 

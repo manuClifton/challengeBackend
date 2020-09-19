@@ -1,5 +1,6 @@
 const Post = require('../models/Post');
 const { validationResult } = require('express-validator');
+const Categoria = require('../models/Categoria');
 
 
 //Obtiene todos los posts
@@ -7,17 +8,61 @@ exports.obtenerPosts = async (req, res) =>{
 
     try {
         const posts = await Post.findAll({
-            attributes: ['titulo', 'contenido', 'imagen', 'categoria', 'fecha']
-        },{
-           oder: ['fecha', 'DESC']
+            attributes: ["id", "titulo", "contenido", "imagen", "id_categoria", "fecha"],
+            order: [['fecha', 'DESC']]
         })
-        res.status(200).json({posts});
-
-        res.status(200).json({posts});
+        if(posts.length == 0){
+            res.status(404).json({ msg: 'POSTEOS VACIOS'});
+        }else{
+            let posteos = []
+           for (let i = 0; i < posts.length; i++) {
+                let categoria = await Categoria.findOne({
+                    where: {id: posts[i].id_categoria}
+                })
+               posteos.push({
+                   id: posts[i].id,
+                   titulo: posts[i].titulo,
+                   contenido: posts[i].contenido,
+                   imagen: posts[i].imagen,
+                   categoria: categoria.nombre,
+                   fecha: posts[i].fecha
+               })
+           }
+            res.json(posteos);
+        }
     } catch (error) {
         console.log(error);
-        res.status(400).send('Hubo un error en el get');
-        res.send(' NO FUNCIONA');
+        res.status(400).json({ msg: 'Hubo un error en el get de Posteos'});
+    }
+}
+
+//Obtiene por ID
+exports.obtenerPorId = async (req, res) =>{
+
+    try {
+        const post = await Post.findOne({
+            where: {id: req.params.id},
+            attributes: ["id", "titulo", "contenido", "imagen", "id_categoria", "fecha"]
+        });
+        if(post == null){
+            res.status(404).json({ msg: 'No hay post con ese ID'});
+        }else{
+            let categoria = await Categoria.findOne({
+                where: {id: post.id_categoria}
+            })
+            let posteo = {
+                id: post.id,
+                titulo: post.titulo,
+               contenido: post.console,
+               imagen: post.imagen,
+               categoria: categoria.nombre,
+               fecha: post.fecha
+            }
+            res.json(posteo);
+        }
+        
+    } catch (error) {
+        res.status(400).json({ msg: 'ERROR EN LA PETICION'});
     }
 }
 
@@ -25,124 +70,72 @@ exports.obtenerPosts = async (req, res) =>{
 exports.crearPost = async (req, res) => {
     //revisar si hay errores
     const errors = validationResult(req);
-    //console.log(req.body);
-    //console.log(req.query);
 
     if(!errors.isEmpty()){ // si hay errores los muestro
-        console.log('Hay un error en el postman')
+        console.log('Hay un error en el postman');
         return res.status(400).json({ errors: errors.array() })
     }
     
     try {
-          //crea el posteo
-          let posteo = await Post.create(req.body);
-        const {id, titulo, contenido, imagen, categoria} = posteo;
+        //crea el posteo
+        const { titulo, contenido, imagen, idCategoria } = req.body;
+        
+        let post = await Post.create(req.body);
+
         //Mensaje
-        res.json({id, titulo, contenido, imagen, categoria});
-        res.send(`POST FUNCIONA \n${req.body}`);
-        res.status(200).send('Posteo creado');
-        res.status(201).json(req.body);
+        if(post == null){
+            res.status(404).json({ msg: 'ERROR POSTEO NUEVO'});
+        }else{
+            let categoria = await Categoria.findOne({
+                where: {id: post.id_categoria}
+            })
+            let posteo = {
+                id: post.id,
+                titulo: post.titulo,
+               contenido: post.contenido,
+               imagen: post.imagen,
+               categoria: categoria.nombre,
+               fecha: post.fecha
+            }
+            res.status(200).json(posteo);
+        }
         
     } catch (error) {
-        console.log(error);
-        res.status(400).send('Hubo un error');
-        //res.status(400).json({ error: 'Bad Request, invalid or missing input' });
+        res.status(400).json(error);
     }
-}
-
-
-//Obtiene por ID
-exports.obtenerPorId = async (req, res) =>{
-
-    Post.findByPk(req.params.id).then(post =>{
-        res.json(post);
-    })
-    /* try {
-        
-        const post = Post.findByPk(req.params.id);
-        console.log(post);
-        res.status(200).json({post});
-
-        res.status(200).json({post});
-    } catch (error) {
-        console.log(error);
-        res.status(400).send('Hubo un error en el get por ID');
-        res.send(' NO FUNCIONA');
-    } */
 }
 
 //Actualizar un post
 exports.actualizarPost = async (req, res) =>{
-    const { titulo, contenido, imagen, categoria } = req.body;
-
     try {
             let posteo = await Post.update(req.body, {
                 where: { id: req.params.id}
             });
-            res.json({posteo});
-            if(posteo){
+
+            if(posteo.length == 0 || posteo == 0 || posteo == null){
                 return res.status(404).json({ msg: 'No se econtro el Post'})
+            }else{
+                res.status(200).json({ msg: 'Se actualizo correctamente'});
             }
-    
-            res.status(200).json({ msg: 'Se actualizo correctamente'});
-        
     } catch (error) {
-        console.log(error);
         res.status(400).send('Hubo un error PUT en el servidor')
     }
 }
 
 //Elimina un posteo por su ID
 exports.eliminarPost = async (req,res) =>{
-
     try {
-       await Post.destroy({
+      const post = await Post.destroy({
             where: { id: req.params.id}
         })
-        res.status(200).json({ msg: 'Se elimino el posteo'});
+        if(post == 0){
+            res.status(404).json({ msg: 'No hay post con ese ID'});
+        }else{
+            res.status(200).json({ msg: 'Se elimino el posteo'});
+        }
+        
     } catch (error) {
         res.status(400).send('Hubo un error de DELETE en el servidor')
     }
 
-    /* //Obtener el proyecto
-    try {
-        //Revisar el ID
-        let posteo = await Post.findById(req.params.id);
-
-        //verificar si existe
-        if(!posteo){
-            return res.status(400).json({ msg: 'No se econtro el Post'})
-        }
-
-        //Eliminar
-        await Post.findOneAndRemove({ _id: req.params.id });
-        res.status(200).json({msg: 'Posteo eliminado'});
-
-    } catch (error) {
-        console.log(error);
-        res.status(400).send('Hubo un error de DELETE en el servidor')
-    } */
 }
-/*
-//elimimar todos los posteos
-exports.eliminarPosteos = async (req,res) =>{
-
-
-    try {
-        let posteos = await Post.find(req.body);
-        console.log(posteos);
-        //verificar si existen
-         if(!posteos){
-            return res.status(400).json({ msg: 'No se encontraron el Post'})
-        }
-
-        //Eliminar
-        await Post.removeAllListeners({posteos});
-
-        res.status(200).json({msg: 'Posteos eliminado'}); 
-
-    } catch (error) {
-        console.log(error);
-        res.status(400).send('Hubo un error de DELETE en el servidor')
-    }
-}*/
